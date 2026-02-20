@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional
 from boiled_egg.boiled_egg import BoiledEggGIA, BoiledEggBBB
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from rdkit import Chem
 from rdkit.Chem import Descriptors
 from shapely.geometry import Point, Polygon
@@ -17,7 +17,7 @@ class BoiledEggHandler:
         self.models["BBB"] = Polygon(BoiledEggBBB.ml_tensor)
         self.models["GIA"] = Polygon(BoiledEggGIA.ml_tensor)
     
-    def process_multiple_properties(self, smi: str, property_list: List[str]) -> Dict[List[str, Any]]:
+    def process_multiple_properties(self, smi: str, property_list: List[str]) -> Dict[str, Any]:
         if not smi:
             return []
     
@@ -64,7 +64,7 @@ class BoiledEggHandler:
 
         except Exception as e:
             # Return error objects for the batch
-            return [{"smiles": smi, "status": "error", "results": {}, "error": str(e)} ]
+            return {"smiles": smi, "status": "error", "results": {}, "error": str(e)} 
         
     def process_multiple_properties_batch(self, smiles_list: List[str], property_list: List[str]) -> List[Dict[str, Any]]:
         res_ls = []

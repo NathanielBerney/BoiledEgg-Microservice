@@ -15,11 +15,11 @@ From: continuumio/miniconda3:latest
 
     Usage:
         singularity run boiledegg.sif
-        singularity run --env PORT=10000 boiledegg.sif
+        singularity run --env PORT=1800 boiledegg.sif
         singularity shell boiledegg.sif
     
     Environment Variables:
-        PORT: Server port (default: 10000)
+        PORT: Server port (default: 1800)
         HOST: Server host (default: 0.0.0.0)
         RELOAD: Enable auto-reload (default:true)
 
@@ -34,7 +34,7 @@ From: continuumio/miniconda3:latest
     export CONDA_PREFIX=/opt/conda/envs/boiledegg_env
 
 %files
-    boiledegg_handler.py /app/ctoxpred_handler.py
+    boiledegg_handler.py /app/boiledegg_handler.py
     environment.yml /app/environment.yml
     main.py /app/main.py
     boiled_egg /app/boiled_egg
@@ -59,7 +59,7 @@ From: continuumio/miniconda3:latest
     cd /app || exit 1
 
     #Set defaults if not provided
-    PORT=${PORT:-10000}
+    PORT=${PORT:-1800}
 
     echo "========================================="
     echo "BoiledEgg Microservice"
