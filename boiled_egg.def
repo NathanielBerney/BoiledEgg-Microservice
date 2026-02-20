@@ -1,0 +1,78 @@
+BootStrap: docker
+From: continuumio/miniconda3:latest
+
+%labels
+    Author "Nathaniel Berney"
+    Version "1.0.0"
+    Description "BoiledEgg Microservice - BoiledEgg property prediction using BoiledEgg models"
+    HelpURL "https://github.com/NathanielBerney/BoiledEgg-Microservice"
+
+    
+%help
+    BoiledEgg Microservice Container
+
+    This container runs a FastAPI microservice for predicting BBB, GIA, TPSA, WLogP properties.
+
+    Usage:
+        singularity run boiledegg.sif
+        singularity run --env PORT=10000 boiledegg.sif
+        singularity shell boiledegg.sif
+    
+    Environment Variables:
+        PORT: Server port (default: 10000)
+        HOST: Server host (default: 0.0.0.0)
+        RELOAD: Enable auto-reload (default:true)
+
+%environment 
+    export PYTHONNOUSERSITE=1
+    export PATH="/opt/conda/bin:$PATH"
+    export PYTHONUNBUFFERED=1
+    export PYTHONPATH=/app
+    export PORT=10000
+    export HOST=0.0.0.0
+    export DOCKER_BUILDKIT=1
+    export CONDA_PREFIX=/opt/conda/envs/boiledegg_env
+
+%files
+    boiledegg_handler.py /app/ctoxpred_handler.py
+    environment.yml /app/environment.yml
+    main.py /app/main.py
+    boiled_egg /app/boiled_egg
+
+%post 
+    mkdir -p /app
+    apt-get update && apt-get install -y git
+
+    #Create conda environment from environment.yml
+    conda env create -f /app/environment.yml -y
+
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate boiledegg_env
+
+    #Clean conda cache to reduce image size
+    conda clean -afy
+
+%runscript
+    #!/bin/bash
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate boiledegg_env
+    cd /app || exit 1
+
+    #Set defaults if not provided
+    PORT=${PORT:-10000}
+
+    echo "========================================="
+    echo "BoiledEgg Microservice"
+    echo "========================================="
+    echo "Starting FastAPI server..."
+    echo "Port: $PORT"
+    echo "========================================="
+    echo ""
+
+    # Run uvicorn
+    python3 main.py "$@"
+
+%test
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate boiledegg_env
+    python3 -c "import fastapi; print('All dependencies installed successfully')"
